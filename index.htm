@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html>
+
+
+<head>
+<style type="text/css">
+.header { height: 150px; width: 150px; }
+html, body {
+    height: 100%;
+}
+
+h1, h2 {
+    background-color: white;
+    font-family: Tahoma, serif;
+    color: black;
+    padding: 10px;
+    letter-spacing: 1px;
+}
+
+h1 {
+    font-size: 1.3em;
+}
+
+h2 {
+    font-size: 1.2em;
+}
+
+canvas {
+    background-color: #f3f3f3;
+    -webkit-box-shadow: 3px 3px 3px 0 #e3e3e3;
+    -moz-box-shadow: 3px 3px 3px 0 #e3e3e3;
+    box-shadow: 3px 3px 3px 0 #e3e3e3;
+    border: 1px solid #c3c3c3;
+    height: 100px;
+    margin: 6px 0 0 6px;
+}
+
+.nv-file-over {
+    background-color: #FFBEA3;
+}
+
+.other-drop-zone {
+    border: 2px dashed burlywood;
+    padding: 4px;
+    height: 100px;
+}
+
+.other-over-zone {
+    background-color: moccasin;
+}
+
+.bg {
+    background-color: lightgreen;
+}
+
+.over-zone {
+    border: 2px dashed lavender;
+    height: 100px;
+    padding: 4px;
+
+
+}
+
+.item-progress-box {
+    height: 20px;
+    margin-top: -20px;
+    margin-left: 60px;
+    margin-right: 10px;
+}
+
+.item-progress {
+    background-color: #90B8DA;
+    height: 100%;
+    width: 0;
+}
+
+.total-progress-box {
+    height: 20px;
+    margin-top: -20px;
+    margin-left: 90px;
+    margin-right: 10px;
+}
+
+.total-progress {
+    background-color: #90B8DA;
+    height: 100%;
+    width: 0;
+}
+
+.box {
+    margin: 20px;
+}
+
+.progress {
+    background-color: mediumpurple;
+    height: 20px;
+}
+
+.uploaded {
+    background-color: lightgreen;
+    height: 20px;
+    width: 100px;
+}
+
+ul > li:nth-child(odd) {
+    background-color: #f5f5f5;
+    margin: 2px;
+}
+
+.zone {
+    width: 49%;
+
+}
+</style>
+	<header>
+
+	</header>
+	<img scr="logo.jpg">
+</head>
+<body align='center' ng-app="petsureExam">
+	<div id="header" >
+<h1 style="font-family: Sans-serif;">Make a claim</h1>
+</div>
+<div ng-controller="petsureCont">
+	Make a claim for your pet
+<select ng-model="petHere"
+      ng-options="pet.name as (pet.name) for pet in petList">
+</select>
+<br>
+<br>
+<br>
+	Attach <font color='red'>{{petHere}}'</font>s invoice for us here
+</div>
+<br>
+
+<div ng-controller = "myCtrl" >
+
+	 <input type = "file" file-model = "myFile" class="over-zone zone" />
+
+   <br/><br/><br/>
+   <button ng-click = "uploadFile()" >Submit</button>
+
+</div>
+
+</body>
+</html>
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.1/angular.min.js"></script>
+<script type="text/javascript">
+var myApp = angular.module('petsureExam', []);
+/*list of pets */
+  myApp.controller('petsureCont', ['$scope','$http', function($scope,$http) {
+		$http({
+			method: "GET",
+			url: "https://jsonblob.com/api/9c1b891e-baf6-11e6-871b-d3dfea84fe35",
+		}).then(function mySuccess(response){
+
+			$scope.petList = response.data.PET;
+		},function myError(response){
+			$scope.petList.response.statusText;
+		});
+		 $scope.petHere = $scope.petList;
+      }]);
+/* for upload */
+         myApp.directive('fileModel', ['$parse', function ($parse) {
+            return {
+               restrict: 'A',
+               link: function(scope, element, attrs) {
+                  var model = $parse(attrs.fileModel);
+                  var modelSetter = model.assign;
+
+                  element.bind('change', function(){
+                     scope.$apply(function(){
+                        modelSetter(scope, element[0].files[0]);
+                     });
+                  });
+               }
+            };
+         }]);
+
+         myApp.service('fileUpload', ['$http', function ($http) {
+            this.uploadFileToUrl = function(file, uploadUrl){
+               var fd = new FormData();
+               fd.append('file', file);
+
+               $http.post(uploadUrl, fd, { // params upload url and file
+                  transformRequest: angular.identity,
+                  headers: {'Content-Type': undefined}
+               })
+
+               .success(function(){
+
+
+               })
+
+               .error(function(){
+								 alert("There is no path yet for upload. Amd also I did not use bootstrap yet. Just simply to show the functionality of the webpage");
+               });
+            }
+         }]);
+
+         myApp.controller('myCtrl', ['$scope', 'fileUpload', function($scope, fileUpload){
+
+            $scope.uploadFile = function(){
+               var file = $scope.myFile;
+               var uploadUrl = "http://example.com/path/to/model"; //url whereat the data will be save
+               fileUpload.uploadFileToUrl(file, uploadUrl);
+            };
+         }]);
+
+</script>
